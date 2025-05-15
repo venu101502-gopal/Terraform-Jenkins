@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "venugopal" {
-  ami                    = "ami-084568db4383264d4"
+  ami = "ami-053b0d53c279acc90"
   instance_type          = "t2.micro"
   key_name               = "Blue-key"  # Do NOT include .pem
   subnet_id              = "subnet-0d1fa72421efd7af5"
