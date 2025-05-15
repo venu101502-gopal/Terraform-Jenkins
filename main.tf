@@ -3,11 +3,11 @@ provider "aws" {
 }
 
 resource "aws_instance" "venugopal" {
-  ami = "ami-053b0d53c279acc90"
-  instance_type          = "t2.micro"
-  key_name               = "Blue-key"  # Do NOT include .pem
-  subnet_id              = "subnet-0d1fa72421efd7af5"
-  vpc_security_group_ids = ["sg-054788bd6d2edbc82"]
+  ami                         = "ami-053b0d53c279acc90"  # Ubuntu 22.04 LTS
+  instance_type               = "t2.micro"
+  key_name                    = "Blue-key"
+  subnet_id                   = "subnet-0d1fa72421efd7af5"
+  vpc_security_group_ids      = ["sg-054788bd6d2edbc82"]
   associate_public_ip_address = true
 
   root_block_device {
@@ -35,19 +35,23 @@ resource "aws_instance" "venugopal" {
     #!/bin/bash
     exec > /var/log/user-data.log 2>&1
 
+    # Format volumes
     mkfs.xfs -f /dev/xvdf
     mkfs.xfs -f /dev/xvdg
     mkfs.xfs -f /dev/xvdh
 
+    # Create mount points
     mkdir -p /home/ibtbackup /opt/sutisoftapps /var/lib/mysql
 
+    # Mount volumes
     mount /dev/xvdf /home/ibtbackup
     mount /dev/xvdg /opt/sutisoftapps
     mount /dev/xvdh /var/lib/mysql
 
-    echo "$(blkid -s UUID -o value /dev/xvdf) /home/ibtbackup xfs defaults,nofail 0 2" >> /etc/fstab
-    echo "$(blkid -s UUID -o value /dev/xvdg) /opt/sutisoftapps xfs defaults,nofail 0 2" >> /etc/fstab
-    echo "$(blkid -s UUID -o value /dev/xvdh) /var/lib/mysql xfs defaults,nofail 0 2" >> /etc/fstab
+    # Persist mounts
+    echo "UUID=$(blkid -s UUID -o value /dev/xvdf) /home/ibtbackup xfs defaults,nofail 0 2" >> /etc/fstab
+    echo "UUID=$(blkid -s UUID -o value /dev/xvdg) /opt/sutisoftapps xfs defaults,nofail 0 2" >> /etc/fstab
+    echo "UUID=$(blkid -s UUID -o value /dev/xvdh) /var/lib/mysql xfs defaults,nofail 0 2" >> /etc/fstab
   EOF
 
   tags = {
